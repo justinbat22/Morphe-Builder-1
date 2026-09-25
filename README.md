@@ -266,19 +266,6 @@ the same higher rate limit.
 The module is built for one specific architecture (or universal), so flash
 the variant that matches your device.
 
-**A Gboard APK is still larger than expected.** The builder now downloads
-the exact arm64/480-compatible plain APK when APKMirror publishes one. APK
-and ZIP files are already compressed, so GitHub does not materially shrink
-them; a large base APK can legitimately remain large. Check the selected
-architecture/DPI and source-size line in the workflow log.
-
-**GitHub's release list looks interleaved.** Releases from different apps
-are published in one workflow and GitHub does not offer custom app grouping
-or sorting. Assets inside each release are uploaded in deterministic
-architecture/build-mode order. Rebuilding a changed patch/config updates that
-release in place (preserving its ordering metadata) and removes stale assets
-instead of creating a duplicate or moving the release.
-
 **Telegram notifications aren't sending.**
 They're optional. If `TG_TOKEN` isn't set as a repo secret, that step is
 skipped automatically and never fails the build.
@@ -288,8 +275,6 @@ skipped automatically and never fails the build.
 - [Morphe](https://github.com/MorpheApp) — the patcher this project drives.
 - [ReVanced](https://github.com/ReVanced) — the original patcher Morphe is
   based on.
-- [crimera/piko](https://github.com/crimera/piko) — third-party
-  Instagram/X patches used by the default config.
 - [j-hc](https://github.com/j-hc) — this build pipeline's general structure,
   and the idea behind the Magisk module's stock-install-then-mount
   technique, were inspired by j-hc's ReVanced/Morphe builder templates.
