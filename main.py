@@ -352,9 +352,9 @@ def run(
             panic(f"App '{app_id}' is disabled in config.yml (enabled: false)")
             return False
     else:
-        apps = enabled_apps("config.yml")
+        apps = enabled_apps(config_path)
         if not apps:
-            print("No enabled apps in config.yml. Nothing to do.")
+            print(f"No enabled apps in {config_path}. Nothing to do.")
             return False
 
     repo = get_repo() if not check_only else os.environ.get("GITHUB_REPOSITORY", "local/check")
