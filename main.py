@@ -334,12 +334,13 @@ def run(
     version_override: str | None,
     force: bool,
     check_only: bool,
+    config_path: str = "config.yml",
 ) -> bool:
     """Returns True if at least one app was successfully built and published."""
     try:
-        all_apps = load_config("config.yml")
+        all_apps = load_config(config_path)
     except ConfigError as e:
-        panic(f"config.yml error: {e}")
+        panic(f"{config_path} error: {e}")
         return False
 
     if app_id:
@@ -442,6 +443,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Resolve versions only; skip downloading/patching/publishing",
     )
+    parser.add_argument(
+        "--config",
+        default="config.yml",
+        help="Path to a config.yml-style file (default: config.yml)",
+    )
     args = parser.parse_args()
 
     if args.version and not args.app:
@@ -452,4 +458,5 @@ if __name__ == "__main__":
         version_override=args.version,
         force=args.force,
         check_only=args.check,
+        config_path=args.config,
     )
