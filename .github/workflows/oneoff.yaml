@@ -145,51 +145,62 @@ jobs:
               channel: "latest"
 
           apps:
-            - id: "${{ inputs.app_id }}"
+            - id: "${APP_ID}"
               enabled: true
-              name: "${{ inputs.app_name }}"
-              package_name: "${{ inputs.package_name }}"
-              ${{ inputs.version && format('version: "{0}"', inputs.version) || '' }}
+              name: "${APP_NAME}"
+              package_name: "${PACKAGE_NAME}"
               apkmirror:
-                org: "${{ inputs.apkmirror_org }}"
-                app: "${{ inputs.apkmirror_app }}"
-                ${{ inputs.apkmirror_release_prefix && format('release_prefix: "{0}"', inputs.apkmirror_release_prefix) || '' }}
+                org: "${APKMIRROR_ORG}"
+                app: "${APKMIRROR_APP}"
               patches:
-                repo: "${{ inputs.patches_repo }}"
-                ${{ inputs.patches_asset_regex && format('asset_regex: "{0}"', inputs.patches_asset_regex) || '' }}
+                repo: "${PATCHES_REPO}"
           YAMLEOF
 
-          if [ -n "${{ inputs.cli_repo }}" ]; then
-            cat >> /tmp/oneoff-config.yml <<YAMLEOF
-              cli:
-                repo: "${{ inputs.cli_repo }}"
-                ${{ inputs.cli_asset_regex && format('asset_regex: "{0}"', inputs.cli_asset_regex) || '' }}
-YAMLEOF
+          if [ -n "${VERSION}" ]; then
+            echo "              version: \"${VERSION}\"" >> /tmp/oneoff-config.yml
           fi
 
-          if [ -n "${{ inputs.build_mode }}" ]; then
-            echo "              build_mode: \"${{ inputs.build_mode }}\"" >> /tmp/oneoff-config.yml
+          if [ -n "${APKMIRROR_RELEASE_PREFIX}" ]; then
+            echo "                release_prefix: \"${APKMIRROR_RELEASE_PREFIX}\"" >> /tmp/oneoff-config.yml
+          fi
+
+          if [ -n "${PATCHES_ASSET_REGEX}" ]; then
+            echo "                asset_regex: \"${PATCHES_ASSET_REGEX}\"" >> /tmp/oneoff-config.yml
+          fi
+
+          if [ -n "${CLI_REPO}" ]; then
+            cat >> /tmp/oneoff-config.yml <<YAMLEOF
+              cli:
+                repo: "${CLI_REPO}"
+YAMLEOF
+            if [ -n "${CLI_ASSET_REGEX}" ]; then
+              echo "                asset_regex: \"${CLI_ASSET_REGEX}\"" >> /tmp/oneoff-config.yml
+            fi
+          fi
+
+          if [ -n "${BUILD_MODE}" ]; then
+            echo "              build_mode: \"${BUILD_MODE}\"" >> /tmp/oneoff-config.yml
           else
             echo "              build_mode: \"apk\"" >> /tmp/oneoff-config.yml
           fi
 
-          if [ -n "${{ inputs.architectures }}" ]; then
-            archs=$(echo "${{ inputs.architectures }}" | sed 's/,/","/g; s/ //g')
+          if [ -n "${ARCHITECTURES}" ]; then
+            archs=$(echo "${ARCHITECTURES}" | sed 's/,/","/g; s/ //g')
             echo "              architectures: [\"${archs}\"]" >> /tmp/oneoff-config.yml
           else
             echo "              architectures: [\"universal\"]" >> /tmp/oneoff-config.yml
           fi
 
-          if [ -n "${{ inputs.dpi }}" ]; then
-            echo "              dpi: ${{ inputs.dpi }}" >> /tmp/oneoff-config.yml
+          if [ -n "${DPI}" ]; then
+            echo "              dpi: ${DPI}" >> /tmp/oneoff-config.yml
           else
             echo "              dpi: null" >> /tmp/oneoff-config.yml
           fi
 
-          if [ -n "${{ inputs.module_id }}" ]; then
+          if [ -n "${MODULE_ID}" ]; then
             echo "              module:" >> /tmp/oneoff-config.yml
-            echo "                id: \"${{ inputs.module_id }}\"" >> /tmp/oneoff-config.yml
-            echo "                author: \"${{ inputs.module_author || 'Morphe Multi-App Builder' }}\"" >> /tmp/oneoff-config.yml
+            echo "                id: \"${MODULE_ID}\"" >> /tmp/oneoff-config.yml
+            echo "                author: \"${MODULE_AUTHOR:-Morphe Multi-App Builder}\"" >> /tmp/oneoff-config.yml
           fi
 
           echo "              include_patches: []" >> /tmp/oneoff-config.yml
@@ -198,6 +209,23 @@ YAMLEOF
           echo "--- Generated config ---"
           cat /tmp/oneoff-config.yml
           echo "--- End config ---"
+        env:
+          APP_ID: ${{ inputs.app_id }}
+          APP_NAME: ${{ inputs.app_name }}
+          PACKAGE_NAME: ${{ inputs.package_name }}
+          APKMIRROR_ORG: ${{ inputs.apkmirror_org }}
+          APKMIRROR_APP: ${{ inputs.apkmirror_app }}
+          APKMIRROR_RELEASE_PREFIX: ${{ inputs.apkmirror_release_prefix }}
+          PATCHES_REPO: ${{ inputs.patches_repo }}
+          PATCHES_ASSET_REGEX: ${{ inputs.patches_asset_regex }}
+          CLI_REPO: ${{ inputs.cli_repo }}
+          CLI_ASSET_REGEX: ${{ inputs.cli_asset_regex }}
+          VERSION: ${{ inputs.version }}
+          BUILD_MODE: ${{ inputs.build_mode }}
+          ARCHITECTURES: ${{ inputs.architectures }}
+          DPI: ${{ inputs.dpi }}
+          MODULE_ID: ${{ inputs.module_id }}
+          MODULE_AUTHOR: ${{ inputs.module_author }}
 
       - name: Validate config.yml
         run: uv run main.py --check --config /tmp/oneoff-config.yml
