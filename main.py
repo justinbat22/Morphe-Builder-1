@@ -346,10 +346,10 @@ def run(
     if app_id:
         apps = [a for a in all_apps if a.id == app_id]
         if not apps:
-            panic(f"No app with id '{app_id}' found in config.yml")
+            panic(f"No app with id '{app_id}' found in {config_path}")
             return False
         if not apps[0].enabled and not force:
-            panic(f"App '{app_id}' is disabled in config.yml (enabled: false)")
+            panic(f"App '{app_id}' is disabled in {config_path} (enabled: false)")
             return False
     else:
         apps = enabled_apps(config_path)
